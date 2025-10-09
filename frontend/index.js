@@ -42,22 +42,47 @@ powerControlButton.id = "togglePower";
 powerControlContainer.appendChild(powerControlButton);
 container.appendChild(powerControlContainer);
 
-async function updatePower() {
-  const { power } = await getPower();
+async function updatePowerControl(power) {
   if (power) {
-    powerControlButton.addEventListener("click", async function () {
+    powerControlButton.onclick = async function () {
       await off();
-      updatePower();
-    });
+      // updateConditioner();
+    };
+    setTempInput.onchange = async function (event) {
+      const targetTemp = +event.target.value;
+      await setTargetTemp(targetTemp);
+      // updateConditioner();
+    };
   } else {
-    powerControlButton.addEventListener("click", async function () {
+    powerControlButton.onclick = async function () {
       await on();
-      updatePower();
-    });
+      // updateConditioner();
+    };
   }
 
   powerControlButton.textContent = power ? "Вимкнути" : "Увімкнути";
   setTempInput.readOnly = !power;
 }
 
-updatePower();
+async function updateConditioner(power, targetTemp, currentTemp) {
+  // const { power, targetTemp, currentTemp } = await getStatus();
+  updatePowerControl(power);
+  setTempInput.value = targetTemp;
+  currentTempSpan.textContent = `${currentTemp}°C`;
+}
+const wsUri = "ws://localhost:8000";
+const websocket = new WebSocket(wsUri);
+// websocket.addEventListener("open", () => {
+//   console.log("CONNECTED");
+//   pingInterval = setInterval(() => {
+//     websocket.send("ping");
+//   }, 1000);
+// });
+websocket.addEventListener("message", (e) => {
+  const { power, targetTemp, currentTemp } = JSON.parse(e.data);
+  console.log(e);
+
+  updateConditioner(power, targetTemp, currentTemp);
+});
+
+// updateConditioner();

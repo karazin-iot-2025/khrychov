@@ -2,14 +2,6 @@ let __power = false;
 
 const BASE_URL = "http://localhost:8000";
 
-async function togglePower() {
-  const resp = await new Promise((resolve, reject) => {
-    setTimeout(() => resolve(!__power), 2000);
-  });
-  __power = resp;
-  return resp;
-}
-
 async function on() {
   return await fetch(`${BASE_URL}/conditioners/1`, {
     method: "PATCH",
@@ -25,6 +17,18 @@ async function off() {
 }
 
 async function getPower() {
+  const resp = await fetch(`${BASE_URL}/conditioners/1`);
+  return resp.json();
+}
+
+async function setTargetTemp(targetTemp) {
+  return await fetch(`${BASE_URL}/conditioners/1`, {
+    method: "PATCH",
+    body: JSON.stringify({ targetTemp }),
+  });
+}
+
+async function getStatus() {
   const resp = await fetch(`${BASE_URL}/conditioners/1`);
   return resp.json();
 }
