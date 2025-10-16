@@ -9,9 +9,10 @@ let __currentTemp = 21;
 const delta = 0.1;
 
 function simulation() {
-  if (Math.abs(__targetTemp - __currentTemp) > 0.1) {
+  if (Math.abs(__targetTemp - __currentTemp) > 0.1 && __power) {
     __currentTemp += delta * Math.sign(__targetTemp - __currentTemp);
     __currentTemp = +__currentTemp.toFixed(1);
+    return true;
   }
 }
 
@@ -49,6 +50,7 @@ const server = http.createServer(async (request, response) => {
         __targetTemp = targetTemp;
       }
       response.writeHead(204);
+      broadcast();
       response.end();
     }
   } else {
@@ -64,20 +66,35 @@ wss.on("connection", function connection(ws) {
   ws.on("message", function message(data) {
     console.log("received: %s", data);
   });
+  ws.send(
+    JSON.stringify({
+      power: __power,
+      targetTemp: __targetTemp,
+      currentTemp: __currentTemp,
+    })
+  );
 });
 
-server.listen(8000, () => {
+const BASE_URL = process.env.BASE_URL || "http://localhost";
+const PORT = process.env.PORT || 8000;
+
+function broadcast() {
+  wss.clients.forEach((client) => {
+    client.send(
+      JSON.stringify({
+        power: __power,
+        targetTemp: __targetTemp,
+        currentTemp: __currentTemp,
+      })
+    );
+  });
+}
+
+server.listen(PORT, () => {
   setInterval(() => {
-    simulation();
-    wss.clients.forEach((client) => {
-      client.send(
-        JSON.stringify({
-          power: __power,
-          targetTemp: __targetTemp,
-          currentTemp: __currentTemp,
-        })
-      );
-    });
+    if (simulation()) {
+      broadcast();
+    }
   }, 1000);
-  console.log("Server is running on http://localhost:8000");
+  console.log(`Server is running on ${BASE_URL}:${PORT}`);
 });
