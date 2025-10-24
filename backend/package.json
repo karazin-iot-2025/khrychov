@@ -4,7 +4,8 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "nodemon --env-file=.env main"
+    "start": "node main",
+    "dev": "nodemon --env-file=.env main"
   },
   "author": "",
   "license": "ISC",
