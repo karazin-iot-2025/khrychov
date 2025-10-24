@@ -1,6 +1,8 @@
 let __power = false;
 
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = "https://iot-server-tdla.onrender.com"
+// "http://localhost:8000";
+
 
 async function on() {
   return await fetch(`${BASE_URL}/conditioners/1`, {

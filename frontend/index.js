@@ -70,7 +70,9 @@ async function updateConditioner(power, targetTemp, currentTemp) {
   setTempInput.value = targetTemp;
   currentTempSpan.textContent = `${currentTemp}°C`;
 }
-const wsUri = "ws://localhost:8000";
+// const wsUri = "ws://localhost:8000";
+const wsUri = "wss://iot-server-tdla.onrender.com";
+
 const websocket = new WebSocket(wsUri);
 // websocket.addEventListener("open", () => {
 //   console.log("CONNECTED");
